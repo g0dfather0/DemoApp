@@ -49,7 +49,7 @@
  *      LED for negative offset
  *    + Transmit temperature value via TimerA UART to PC  
  *    + Button Press --> Calibrate using current temperature  
- *                       Send character '°' via UART, notifying PC
+ *                       Send character 'ï¿½' via UART, notifying PC
  * 
  * Changes:
  *
@@ -67,7 +67,13 @@
  * Texas Instruments, Inc.
  ******************************************************************************/
   
-#include  "msp430g2553.h"
+  
+/*
+ *added for msp430g2553 specific device
+ *Added by : g0dfather0
+*/
+#include  "msp430g2553.h"      
+//Change end
 
 #define     LED1                  BIT0
 #define     LED2                  BIT6
@@ -107,8 +113,14 @@
 #define     Bitime                13*4//0x0D    
  
 #define     UART_UPDATE_INTERVAL  1000
+
+/* 
+ * Adding new definitions for initial LED flashing timer values
+ * Added by: g0dfather0
+ */  
 #define		LED_TOGGLE_INTERVAL1  0xFFFF
 #define		LED_TOGGLE_INTERVAL2  0x0000
+//Change end
 
 unsigned char BitCnt;
 
@@ -156,8 +168,8 @@ void main(void)
   applicationMode = APP_APPLICATION_MODE;
   ConfigureAdcTempSensor();
   ConfigureTimerPwm();
-    
-  //__enable_interrupt();                     // Enable interrupts.
+  
+  __enable_interrupt();                     // Enable interrupts.
   
   /* Main Application Loop */
   while(1)
@@ -233,10 +245,17 @@ void PreApplicationMode(void)
   BCSCTL1 |= DIVA_1;                        
   BCSCTL3 |= LFXT1S_2;                      // ACLK = VLO
   
-  TACCR0 = LED_TOGGLE_INTERVAL1;            //   
+  //Added by g0dfather to replace hardcoded value with defined value
+  TACCR0 = LED_TOGGLE_INTERVAL1;           
+  //Change end
+  
   TACTL = TASSEL_1 | MC_1;                  // TACLK = SMCLK, Up mode.  
   TACCTL1 = CCIE + OUTMOD_3;                // TACCTL1 Capture Compare
-  TACCR1 = LED_TOGGLE_INTERVAL2;  
+  
+  //Added by g0dfather to replace hardcoded value with defined value
+  TACCR1 = LED_TOGGLE_INTERVAL2;
+  //Change end
+  
   __bis_SR_register(LPM3_bits + GIE);          // LPM0 with interrupts enabled
 }
 
@@ -299,6 +318,7 @@ void Transmit()
 
 
 // Timer A0 interrupt service routine
+//g0dfather0: Changed for device specific vector value from header file
 #pragma vector=TIMER0_A0_VECTOR
 __interrupt void Timer_A (void)
 {
@@ -333,7 +353,9 @@ __interrupt void Timer_A (void)
   }
 }
 
+//g0dfather0: Changed Timer vector to match vector from device specific header file
 #pragma vector = TIMER0_A1_VECTOR
+//Change end
 __interrupt void ta1_isr(void)
 {
   TACCTL1 &= ~CCIFG;
