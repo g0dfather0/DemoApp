@@ -118,7 +118,7 @@
  * Adding new definitions for initial LED flashing timer values
  * Added by: g0dfather0
  */  
-#define		LED_TOGGLE_INTERVAL1  0xFFFF
+#define		LED_TOGGLE_INTERVAL1  0x0FFF
 #define		LED_TOGGLE_INTERVAL2  0x0000
 //Change end
 
@@ -240,19 +240,19 @@ void PreApplicationMode(void)
 {    
   LED_DIR |= LED1 + LED2;
   LED_OUT |= LED1 + LED2;                          // To enable the LED toggling effect
-  //LED_OUT &= ~LED2;
+  LED_OUT &= ~LED2;
     
   BCSCTL1 |= DIVA_1;                        
   BCSCTL3 |= LFXT1S_2;                      // ACLK = VLO
   
-  //Added by g0dfather to replace hardcoded value with defined value
+  //g0dfather0: Added to replace hardcoded value with defined value
   TACCR0 = LED_TOGGLE_INTERVAL1;           
   //Change end
   
   TACTL = TASSEL_1 | MC_1;                  // TACLK = SMCLK, Up mode.  
   TACCTL1 = CCIE + OUTMOD_3;                // TACCTL1 Capture Compare
   
-  //Added by g0dfather to replace hardcoded value with defined value
+  //g0dfather0: Added to replace hardcoded value with defined value
   TACCR1 = LED_TOGGLE_INTERVAL2;
   //Change end
   
